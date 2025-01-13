@@ -1,3 +1,2 @@
-BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+BOT_TOKEN = 'YOUR_BOT_TOKEN'
 CHANNEL_USERNAME = '@duduu_mendez_store'
-DOWNLOAD_PATH = './downloads'
