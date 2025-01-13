@@ -1,26 +1,20 @@
 import requests
-from config import DOWNLOAD_PATH
 import os
+from config import DOWNLOAD_PATH
 
-def handle_apk(bot, message, url):
-    bot.reply_to(message, "Processing APK link...")
+def handle_apk(bot, message, app_name):
+    bot.reply_to(message, f"Searching for the APK: {app_name}...")
     apk_path = os.path.join(DOWNLOAD_PATH, "apk")
     os.makedirs(apk_path, exist_ok=True)
 
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            file_name = os.path.basename(url)
-            file_path = os.path.join(apk_path, file_name)
-            with open(file_path, 'wb') as file:
-                file.write(response.content)
-            bot.reply_to(message, "APK downloaded successfully.")
+        # Simulate downloading the APK
+        file_path = os.path.join(apk_path, f"{app_name}.apk")
+        with open(file_path, 'wb') as file:
+            file.write(b"Simulated APK content.")  # Replace with real APK download logic
 
-            # Send APK back to the user
-            with open(file_path, 'rb') as apk:
-                bot.send_document(message.chat.id, apk)
-        else:
-            bot.reply_to(message, "Failed to download APK.")
-
+        # Send the APK to the user
+        with open(file_path, 'rb') as apk:
+            bot.send_document(message.chat.id, apk)
     except Exception as e:
-        bot.reply_to(message, f"Error downloading APK: {e}")
+        bot.reply_to(message, f"Error downloading the APK: {e}")
