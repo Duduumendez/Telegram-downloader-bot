@@ -1,4 +1,5 @@
 import telebot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import BOT_TOKEN, CHANNEL_USERNAME
 from handlers.youtube_handler import handle_youtube
 from handlers.social_handler import handle_social
@@ -18,7 +19,8 @@ def is_user_in_channel(user_id):
 # Start command
 @bot.message_handler(commands=['start'])
 def start(message):
-    if is_user_in_channel(message.from_user.id):
+    user_id = message.from_user.id
+    if is_user_in_channel(user_id):
         bot.reply_to(
             message,
             "Welcome to the Downloader Bot! Use the commands below to download:\n"
@@ -32,11 +34,38 @@ def start(message):
             parse_mode="Markdown"
         )
     else:
+        markup = InlineKeyboardMarkup()
+        join_button = InlineKeyboardButton("JOIN", url=f"https://t.me/{CHANNEL_USERNAME[1:]}")
+        joined_button = InlineKeyboardButton("JOINED", callback_data="joined")
+        markup.add(join_button, joined_button)
         bot.reply_to(
             message,
             f"To continue, please join our Telegram channel: [Duduu Mendez Store]({CHANNEL_USERNAME})",
             parse_mode="Markdown",
+            reply_markup=markup
         )
+
+# Callback for "Joined" button
+@bot.callback_query_handler(func=lambda call: call.data == "joined")
+def verify_joined(call):
+    user_id = call.from_user.id
+    if is_user_in_channel(user_id):
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.id,
+            text="Thank you for joining! Now you can use the bot.\n\n"
+                 "Use the commands below to download:\n"
+                 "1. `/ytmp4 <YouTube link>` - Download YouTube Video (MP4)\n"
+                 "2. `/ytmp3 <YouTube link>` - Download YouTube Audio (MP3)\n"
+                 "3. `/insta <Instagram link>` - Download Instagram Post/Video\n"
+                 "4. `/tiktok <TikTok link>` - Download TikTok Video\n"
+                 "5. `/fb <Facebook link>` - Download Facebook Video\n"
+                 "6. `/song <Song name>` - Download Song (MP3)\n"
+                 "7. `/apk <App name>` - Download APK\n",
+            parse_mode="Markdown"
+        )
+    else:
+        bot.answer_callback_query(call.id, "You haven't joined the channel yet. Please join and try again!")
 
 # Command handlers
 @bot.message_handler(commands=['ytmp4'])
