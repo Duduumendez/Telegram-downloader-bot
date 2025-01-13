@@ -1,6 +1,6 @@
 import telebot
 from config import BOT_TOKEN, CHANNEL_USERNAME
-from handlers.youtube_handler import handle_youtube_video, handle_youtube_audio
+from handlers.youtube_handler import handle_youtube
 from handlers.social_handler import handle_social
 from handlers.song_handler import handle_song
 from handlers.apk_handler import handle_apk
@@ -28,7 +28,8 @@ def start(message):
             "4. `/tiktok <TikTok link>` - Download TikTok Video\n"
             "5. `/fb <Facebook link>` - Download Facebook Video\n"
             "6. `/song <Song name>` - Download Song (MP3)\n"
-            "7. `/apk <App name>` - Download APK\n"
+            "7. `/apk <App name>` - Download APK\n",
+            parse_mode="Markdown"
         )
     else:
         bot.reply_to(
@@ -41,40 +42,55 @@ def start(message):
 @bot.message_handler(commands=['ytmp4'])
 def download_yt_video(message):
     if is_user_in_channel(message.from_user.id):
-        link = message.text.split(" ", 1)[1]
-        handle_youtube_video(bot, message, link)
+        try:
+            link = message.text.split(" ", 1)[1]
+            handle_youtube(bot, message, link, format="mp4")
+        except IndexError:
+            bot.reply_to(message, "Please provide a valid YouTube link.")
     else:
         bot.reply_to(message, "Please join the channel to use this feature.")
 
 @bot.message_handler(commands=['ytmp3'])
 def download_yt_audio(message):
     if is_user_in_channel(message.from_user.id):
-        link = message.text.split(" ", 1)[1]
-        handle_youtube_audio(bot, message, link)
+        try:
+            link = message.text.split(" ", 1)[1]
+            handle_youtube(bot, message, link, format="mp3")
+        except IndexError:
+            bot.reply_to(message, "Please provide a valid YouTube link.")
     else:
         bot.reply_to(message, "Please join the channel to use this feature.")
 
 @bot.message_handler(commands=['insta', 'tiktok', 'fb'])
 def download_social_media(message):
     if is_user_in_channel(message.from_user.id):
-        command, link = message.text.split(" ", 1)
-        handle_social(bot, message, link, command)
+        try:
+            command, link = message.text.split(" ", 1)
+            handle_social(bot, message, link, command)
+        except IndexError:
+            bot.reply_to(message, "Please provide a valid link.")
     else:
         bot.reply_to(message, "Please join the channel to use this feature.")
 
 @bot.message_handler(commands=['song'])
 def download_song(message):
     if is_user_in_channel(message.from_user.id):
-        song_name = message.text.split(" ", 1)[1]
-        handle_song(bot, message, song_name)
+        try:
+            song_name = message.text.split(" ", 1)[1]
+            handle_song(bot, message, song_name)
+        except IndexError:
+            bot.reply_to(message, "Please provide the name of the song.")
     else:
         bot.reply_to(message, "Please join the channel to use this feature.")
 
 @bot.message_handler(commands=['apk'])
 def download_apk(message):
     if is_user_in_channel(message.from_user.id):
-        app_name = message.text.split(" ", 1)[1]
-        handle_apk(bot, message, app_name)
+        try:
+            app_name = message.text.split(" ", 1)[1]
+            handle_apk(bot, message, app_name)
+        except IndexError:
+            bot.reply_to(message, "Please provide the name of the APK.")
     else:
         bot.reply_to(message, "Please join the channel to use this feature.")
 
