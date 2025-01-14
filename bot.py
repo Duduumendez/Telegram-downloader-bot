@@ -5,6 +5,7 @@ from handlers.youtube_handler import handle_youtube
 from handlers.social_handler import handle_social
 from handlers.song_handler import handle_song
 from handlers.apk_handler import handle_apk
+import time  # For adding delay
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -13,7 +14,8 @@ def is_user_in_channel(user_id):
     try:
         member = bot.get_chat_member(CHANNEL_USERNAME, user_id)
         return member.status in ["member", "administrator", "creator"]
-    except:
+    except Exception as e:
+        print(f"Error checking channel membership: {e}")
         return False
 
 # Start command
@@ -40,7 +42,7 @@ def start(message):
         markup.add(join_button, joined_button)
         bot.reply_to(
             message,
-            f"To continue, please join our Telegram channel: [Duduu Mendez Store]({CHANNEL_USERNAME})",
+            f"To continue, please join our Telegram channel: [Duduu Mendez Store]({CHANNEL_USERNAME}).",
             parse_mode="Markdown",
             reply_markup=markup
         )
@@ -49,6 +51,7 @@ def start(message):
 @bot.callback_query_handler(func=lambda call: call.data == "joined")
 def verify_joined(call):
     user_id = call.from_user.id
+    time.sleep(2)  # Delay to allow Telegram to update membership
     if is_user_in_channel(user_id):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
